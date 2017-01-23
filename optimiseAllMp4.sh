@@ -155,20 +155,25 @@ function checkDependecies {
   exitCode=$?
   
   echo $"Récherche du binaire de tovid.."
-  if command -v tovid
+  if ! command -v tovid
   then
     sudo aptitude install tovid
   fi
   exitCode=$?
   
   echo $"Récherche du binaire de exiftool.."
-  if command -v exiftool
+  if ! command -v exiftool
   then
     sudo aptitude install exiftool
   fi
   exitCode=$?
   
-  exit $exitCode;
+  if [[ $exitCode -ne 0 ]]
+  then
+    exit $exitCode;
+  else
+    echo $"Tous les binaires sont installés, on va commencer!"
+  fi
 }
 
 function getVideoBitRate {
@@ -385,7 +390,7 @@ then
             #Préserve les données Exif
             eval $_PROXY exiftool -tagsFromfile \"${_media}\" -r -all:all -overwrite_original \"${_media_path}/${_encoded}\" &> /dev/null
             #Préserve le timestamp
-            eval $_PROXY exiftool "-TrackCreateDate>FileModifyDate" \"${_media}\" &> /dev/null
+            eval $_PROXY exiftool \"-TrackCreateDate>FileModifyDate\" \"${_media}\" &> /dev/null
             # Suppression du fichier original
             exifDest=$(dirname "${_EXIFDATA}${_media:${#PWD}}")
             eval $_PROXY mkdir --parent \"${exifDest}\"
